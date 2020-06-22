@@ -6,32 +6,43 @@
   </head>
 
   <body>
-    <h1>Todo List</h1>   
+    <h1>Todo List App</h1>   
+    
+    <!--create add button-->
 
     <div>
       <button onclick="handlers.addTodo()">Add</button>
       <input id="addTodoTextInput" type="text">
     </div>
-    
+
+    <!--create change button-->
+
     <div>
       <button onclick="handlers.changeTodo()">Change Todo</button>
       <input id="changeTodoPositionInput" type="number">
       <input id="changeTodoTextInput" type="text">
     </div>
 
+    <!--create toggle completed button-->
+
     <div>
       <button onclick="handlers.toggleCompleted()">Toggle Completed</button>
       <input id="toggleCompletedPositionInput" type="number">
     </div>
 
+    <!--create toggle all button-->
     <div>
       <button onclick="handlers.toggleAll()">Toggle All</button>
     </div>
+
+    <!--add a Ul parent element-->
 
     <ul>
     </ul>
 
     <script>
+
+   //here we are definining the various add, change, delete and toggle functions
 
     var todoList = {
      todos: [],
@@ -51,27 +62,32 @@
        var todo = this.todos[position];
        todo.completed= !todo.completed;
      },
+
+     //toggelall function uses a forEach loop
+
      toggleAll: function() { 
        var totalTodos = this.todos.length;
-       var completedTodos=0; 
-       for (var i=0; i<totalTodos; i++){
-       if (this.todos[i].completed===true) {
-         completedTodos++
-       } 
-      }
-      if(completedTodos===totalTodos) {
-        for (var i =0; i<totalTodos;i++) {
-          this.todos[i].completed=false;
+       var completedTodos=0;
+       
+       this.todos.forEach(function(todo) {
+        if(todo.completed===true) {
+          completedTodos++;
         }
-      } else {
-        for(var i = 0; i < totalTodos; i++) {
-          this.todos[i].completed=true;
+      });
+      
+      this.todos.forEach(function(todo) {
+        //Case 1: If everything is true, make everything false. 
+        if(completedTodos===totalTodos) {
+          todo.completed=false;
+        //Case 2: Otherwise, make everything true. 
+        } else {
+          todo.completed=true;
         }
-      }
+      });
      }
-    };   
+    };      
 
-    var handlers = {
+    var handlers = { //here we are connecting the JS to the DOM
      addTodo: function() {
        var addTodoTextInput= document.getElementById('addTodoTextInput');
        todoList.addTodo(addTodoTextInput.value);
@@ -85,10 +101,9 @@
        changeTodoPositionInput.value='';
        changeTodoTextInput.value='';
        view.displayTodos();
-     },
+     }, 
      deleteTodo:function(position) {
        todoList.deleteTodo(position);
-       deleteTodoPositionInput.value='';
        view.displayTodos();
      },
      toggleCompleted:function() {
@@ -102,14 +117,14 @@
       view.displayTodos();
      }
     };
-
-    var view = {
+    
+    var view = { //escaping from the console and making the changes visible on the webpage
       displayTodos: function() {
         var todosUl= document.querySelector('ul');
-        todosUl.innerHTML='';
-        for(var i=0; i<todoList.todos.length;i++) {         
+        todosUl.innerHTML='';     
+      
+        todoList.todos.forEach(function(todo, position) {
          var todoLi= document.createElement('li');
-         var todo= todoList.todos[i];
          var todoTextWithCompletion= '';
          
          if (todo.completed===true) {
@@ -118,12 +133,13 @@
           todoTextWithCompletion='() ' + todo.todoText;
          }
          
-         todoLi.id=i;
+        todoLi.id=position;
          todoLi.textContent= todoTextWithCompletion;
          todoLi.appendChild(this.createDeleteButton());
-         todosUl.appendChild(todoLi);
-        }
+         todosUl.appendChild(todoLi);      
+       }, this);
       },
+
       createDeleteButton: function() {
         var deleteButton = document.createElement('button');
         deleteButton.textContent='Delete';
@@ -132,10 +148,10 @@
       },
       setUpEventListeners: function() {
         var todosUl=document.querySelector('ul');
-        todosUl.addEventListener('click', function(){
+        todosUl.addEventListener('click', function(event){
         var elementClicked=event.target;
         if (elementClicked.className==='deleteButton') {
-        handlers.deleteTodo(parseInt(elementClicked.parentNode.id));
+         handlers.deleteTodo(parseInt(elementClicked.parentNode.id));
         }
        });
       }
